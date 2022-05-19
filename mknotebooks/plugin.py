@@ -285,7 +285,7 @@ class Plugin(mkdocs.plugins.BasePlugin):
             notebook_repo_path = (
                 pathlib.Path(config["repo_url"]) / "blob" / "master" / notebook_path
             )
-
+            print("full", notebook_repo_path)
             cell_content = f"You can download this notebook directly **[here]({str(notebook_repo_path)})**"
             link_cell = nbformat.v4.new_markdown_cell(
                 source=cell_content,
