@@ -277,7 +277,11 @@ class Plugin(mkdocs.plugins.BasePlugin):
             notebook_path = (
                 pathlib.Path() / config["docs_dir"] / page.file.src_path
             ).relative_to(get_git_root(pathlib.Path()))
-
+            print("docs_dir", config["docs_dir"])
+            print("filepath", page.file.src_page)
+            print("git root", get_git_root(pathlib.Path()))
+            print("nb_path", notebook_path)
+            print("repo_path", config["repo_url"])
             notebook_repo_path = (
                 pathlib.Path(config["repo_url"]) / "blob" / "master" / notebook_path
             )
