@@ -247,6 +247,17 @@ class Plugin(mkdocs.plugins.BasePlugin):
                         for mimetype, data in attachment.items():
                             fout.write(a2b_base64(data))
 
+            # Removing warnings and errors
+            for i, cell in enumerate(nb["cells"]):
+                outs = cell.get("outputs", None)
+                if outs is None:
+                    continue
+                kept_outs = [o for o in outs if (o.get("name", None) != "stderr")]
+                if not kept_outs:
+                    del nb["cells"][i]["outputs"]
+
+                nb["cells"][i]["outputs"] = kept_outs
+
             # Add binder link if it is requested.
             if self.config["binder"]:
                 binder_path = (
@@ -261,6 +272,23 @@ class Plugin(mkdocs.plugins.BasePlugin):
                 )
                 binder_cell = nbformat.v4.new_markdown_cell(source=badge_url)
                 nb["cells"].insert(0, binder_cell)
+
+            # Add link to the notebook path
+            notebook_path = (
+                pathlib.Path() / config["docs_dir"] / page.file.src_path
+            ).relative_to(get_git_root(pathlib.Path()))
+
+            notebook_repo_path = (
+                pathlib.Path(config["repo_url"]) / "blob" / "master" / notebook_path
+            )
+
+            cell_content = f"You can download this notebook directly **[here]({str(notebook_repo_path)})**"
+            link_cell = nbformat.v4.new_markdown_cell(
+                source=cell_content,
+            )
+
+            nb["cells"].insert(0, link_cell)
+
             body, resources = exporter.from_notebook_node(nb)
 
             # nbconvert uses the anchor-link class, convert it to the mkdocs convention
