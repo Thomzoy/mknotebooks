@@ -274,12 +274,18 @@ class Plugin(mkdocs.plugins.BasePlugin):
                 nb["cells"].insert(0, binder_cell)
 
             # Add link to the notebook path
-            notebook_path = (
-                pathlib.Path() / config["docs_dir"] / page.file.src_path
-            ).relative_to(get_git_root(pathlib.Path()))
-            notebook_repo_path = (
-                pathlib.Path(config["repo_url"]) / "blob" / "master" / notebook_path
+            notebook_path = str(
+                (pathlib.Path() / config["docs_dir"] / page.file.src_path).relative_to(
+                    get_git_root(pathlib.Path())
+                )
             )
+            notebook_repo_path = os.path.join(
+                config["repo_url"],
+                "blob",
+                "master",
+                notebook_path,
+            )
+
             cell_content = f"You can download this notebook directly **[here]({str(notebook_repo_path)})**"
             link_cell = nbformat.v4.new_markdown_cell(
                 source=cell_content,
