@@ -26,7 +26,7 @@ __email__ = "jonathan.gray@nanosheep.net"
 __copyright__ = "Copyright 2020, Jonathan Gray"
 
 setup(
-    name="mknotebooks",
+    name="mknotebooks-with-links",
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
     entry_points={"mkdocs.plugins": ["mknotebooks = mknotebooks.plugin:Plugin"]},
@@ -35,7 +35,7 @@ setup(
     long_description_content_type="text/markdown",
     author=__author__,
     author_email=__email__,
-    url="https://github.com/greenape/mknotebooks",
+    url="https://github.com/Thomzoy/mknotebooks",
     license="MIT",
     keywords="mkdocs documentation markdown",
     packages=["mknotebooks"],
