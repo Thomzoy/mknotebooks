@@ -42,7 +42,7 @@ setup(
     include_package_data=True,
     install_requires=[
         "nbconvert>=6.0.0",
-        "mkdocs>=1.1",
+        "mkdocs>=1.5.0",
         "markdown>=3.3.3",
         "jupyter_client",
         "gitpython",
@@ -55,6 +55,9 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Natural Language :: English",
         "Operating System :: MacOS :: MacOS X",
         "Operating System :: POSIX",
