@@ -120,6 +120,7 @@ class Plugin(mkdocs.plugins.BasePlugin):
                 default=list(),
             ),
         ),
+        ("repo_files_suffix", mkdocs.config.config_options.Type(str, default="")),
     )
 
     def on_config(self, config: MkDocsConfig):
@@ -272,25 +273,25 @@ class Plugin(mkdocs.plugins.BasePlugin):
                 binder_cell = nbformat.v4.new_markdown_cell(source=badge_url)
                 nb["cells"].insert(0, binder_cell)
 
-            # Add link to the notebook path
-            notebook_path = str(
-                (pathlib.Path() / config["docs_dir"] / page.file.src_path).relative_to(
-                    get_git_root(pathlib.Path())
+            if self.config["repo_files_suffix"]:
+                # Add link to the notebook path
+                notebook_path = str(
+                    (
+                        pathlib.Path() / config["docs_dir"] / page.file.src_path
+                    ).relative_to(get_git_root(pathlib.Path()))
                 )
-            )
-            notebook_repo_path = os.path.join(
-                config["repo_url"],
-                "blob",
-                "master",
-                notebook_path,
-            )
+                notebook_repo_path = os.path.join(
+                    config["repo_url"],
+                    self.config.get("repo_files_suffix").strip("/"),
+                    notebook_path,
+                )
 
-            cell_content = f"You can download this notebook directly **[here]({str(notebook_repo_path)})**"
-            link_cell = nbformat.v4.new_markdown_cell(
-                source=cell_content,
-            )
+                cell_content = f"[![Voir le notebook](https://img.shields.io/badge/Voir%20le%20notebook-GitLab-222261?style=flat&logo=jupyter&link=LIEN)]({str(notebook_repo_path)})"
+                link_cell = nbformat.v4.new_markdown_cell(
+                    source=cell_content,
+                )
 
-            nb["cells"].insert(0, link_cell)
+                nb["cells"].insert(0, link_cell)
 
             body, resources = exporter.from_notebook_node(nb)
 
