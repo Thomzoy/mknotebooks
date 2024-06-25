@@ -5,6 +5,7 @@ import re
 import sys
 from binascii import a2b_base64
 
+
 pymod = sys.modules.get(
     "xml.etree.ElementTree", None
 )  # Working around https://github.com/tiran/defusedxml/pull/53/files
@@ -121,6 +122,10 @@ class Plugin(mkdocs.plugins.BasePlugin):
             ),
         ),
         ("repo_files_suffix", mkdocs.config.config_options.Type(str, default="")),
+        (
+            "repo_files_download_suffix",
+            mkdocs.config.config_options.Type(str, default=""),
+        ),
     )
 
     def on_config(self, config: MkDocsConfig):
@@ -258,6 +263,7 @@ class Plugin(mkdocs.plugins.BasePlugin):
 
                 nb["cells"][i]["outputs"] = kept_outs
 
+            badges = []
             # Add binder link if it is requested.
             if self.config["binder"]:
                 binder_path = (
@@ -270,8 +276,9 @@ class Plugin(mkdocs.plugins.BasePlugin):
                     ui=self.config["binder_ui"],
                     file_path=binder_path,
                 )
-                binder_cell = nbformat.v4.new_markdown_cell(source=badge_url)
-                nb["cells"].insert(0, binder_cell)
+                badges.append(badge_url)
+                # binder_cell = nbformat.v4.new_markdown_cell(source=badge_url)
+                # nb["cells"].insert(0, binder_cell)
 
             if self.config["repo_files_suffix"]:
                 # Add link to the notebook path
@@ -286,13 +293,31 @@ class Plugin(mkdocs.plugins.BasePlugin):
                     notebook_path,
                 )
 
-                cell_content = f"[![Voir le notebook](https://img.shields.io/badge/Voir%20le%20notebook-GitLab-222261?style=flat&logo=jupyter&link=LIEN)]({str(notebook_repo_path)})"
-                link_cell = nbformat.v4.new_markdown_cell(
-                    source=cell_content,
+                cell_content = f"[![Voir le notebook](https://img.shields.io/badge/Notebook-Voir%20sur%20GitLab-222261?style=flat&logo=jupyter)]({str(notebook_repo_path)})"
+
+                badges.append(cell_content)
+
+            if self.config["repo_files_download_suffix"]:
+                # Add link to the notebook download path
+                notebook_path = str(
+                    (
+                        pathlib.Path() / config["docs_dir"] / page.file.src_path
+                    ).relative_to(get_git_root(pathlib.Path()))
+                )
+                notebook_repo_download_path = os.path.join(
+                    config["repo_url"],
+                    self.config.get("repo_files_download_suffix").strip("/"),
+                    notebook_path,
                 )
 
-                nb["cells"].insert(0, link_cell)
+                cell_content = f"[![Télécharger le notebook](https://img.shields.io/badge/Notebook-Télécharger-222261?style=flat&logo=jupyter)]({str(notebook_repo_download_path)}?inline=false)"
+                badges.append(cell_content)
 
+            if badges:
+                badges_cell = nbformat.v4.new_markdown_cell(
+                    source=" ".join(badges),
+                )
+                nb["cells"].insert(0, badges_cell)
             body, resources = exporter.from_notebook_node(nb)
 
             # nbconvert uses the anchor-link class, convert it to the mkdocs convention
